@@ -24,6 +24,7 @@ phases:
   post-build:
     commands:
       - echo "Build completed on $DATE"
+      - echo "$DOCKER_REGISTRY_PASSWORD | docker login -u "$DOCKER_REGISTRY_USERNAME" --password-stdin "$DOCKER_REGISTRY_URL"
       - docker push $DOCKER_REGISTRY_URL/$DOCKER_REGISTRY_USERNAME/python-flaskapp:v1
       - echo "Upload artifact to S3"
       - aws s3 cp python-flaskapp-v1.zip s3://python-flaskapp-bucket
