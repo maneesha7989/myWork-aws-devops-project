@@ -1,12 +1,40 @@
 version: 0.2
+
 env:
   parameter-store:
     DOCKER_REGISTRY_USERNAME: /python-app/docker-creds/username
     DOCKER_REGISTRY_PASSWORD: /python-app/docker-creds/password
     DOCKER_REGISTRY_URL: /python-app/docker-registry/url
+    
 phases:
   install:
+    runtime-versions:
+      python: 3.11
   pre-build:
+    commands:
+      - echo "Installing requirements"
+      - pip install -r requirements.txt
   build:
+    commands:
+      - cd pythonApp/
+      - echo "Building docker image"
+      - docker build -t $DOCKER_REGISTRY_URL/$DOCKER_REGISTRY_USERNAME/python-flaskapp:v1 .
+      - echo "zipping the entire application including all files, hidden files
+      - zip -r python-flaskapp-v1.zip * .[[^.]*
   post-build:
-
+    commands:
+      - echo "Build completed on $DATE"
+      - docker push $DOCKER_REGISTRY_URL/$DOCKER_REGISTRY_USERNAME/python-flaskapp:v1
+      - echo "Upload artifact to S3"
+      - aws s3 cp python-flaskapp-v1.zip s3://python-flaskapp-bucket
+      - echo "Creating imagedefinitions.json file..."
+      - printf '[{"name":"flaskapp-container","imageUri":"%s", "Port":8000}]' "$DOCKER_REGISTRY_URL/$DOCKER_REGISTRY_USERNAME/python-flaskapp:v1" > imagedefinitions.json
+      
+artifacts:
+  files:
+    - '**/*'
+  base-directory: '.'
+  exclude patterns:
+    - '.git/**/*'
+    - '.gitignore'
+    - 'README.md'
