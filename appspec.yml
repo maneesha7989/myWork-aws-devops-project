@@ -1,0 +1,17 @@
+version: 0.1
+os: linux
+files:
+  - source: /
+    destination: /home
+    overwrite: true
+file_exists_behaviour: OVERWRITE
+hooks:
+  ApplicationStop:
+    - location: scripts/stop_container.sh
+      timeout: 300
+      runas: root
+  ApplicationStart:
+    - location: scripts/start_container.sh
+      timrout: 300
+      runas: root
+
