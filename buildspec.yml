@@ -1,0 +1,12 @@
+version: 0.2
+env:
+  parameter-store:
+    DOCKER_REGISTRY_USERNAME: /python-app/docker-creds/username
+    DOCKER_REGISTRY_PASSWORD: /python-app/docker-creds/password
+    DOCKER_REGISTRY_URL: /python-app/docker-registry/url
+phases:
+  install:
+  pre-build:
+  build:
+  post-build:
+
